@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Optional;
 import javax.websocket.server.PathParam;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -82,4 +83,9 @@ public interface AntreanRepository extends JpaRepository<Antrean, String> {
             @Param("awal") String awal, 
             @Param("akhir") String akhir);
 
+    @Query("SELECT a FROM Antrean a WHERE a.status = 1 AND a.tanggalperiksa = :tanggal AND a.norm = :norm AND COALESCE(a.sudahCheckIn, false) = false ORDER BY a.createdAt DESC")
+    public List<Antrean> findByNorm(
+            @Param("norm") String norm, 
+            @Param("tanggal") String tanggal);
+    
 }

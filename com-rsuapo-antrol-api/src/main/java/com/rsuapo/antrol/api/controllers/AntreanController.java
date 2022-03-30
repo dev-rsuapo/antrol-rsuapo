@@ -68,6 +68,20 @@ public class AntreanController {
         }
     }
 
+    @PostMapping("/antreans/checkin/norm/{norm}")
+    public ResponseEntity checkInByNorm(@PathVariable("norm") String norm) {
+        try {
+            if (!StringUtils.hasText(norm)) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(createErrorMessage(400, "Kode booking harus diisi"));
+            }
+
+            antreanService.checkInByNorm(norm, new Date().getTime());
+            return ResponseEntity.ok(createSuccessMessage("Ok"));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(createErrorMessage(500, e.getMessage()));
+        }
+    }
+
     @PostMapping("/antreans/poli/mulai/{kodebooking}")
     public ResponseEntity poliMulai(@PathVariable("kodebooking") String kodebooking) {
         try {

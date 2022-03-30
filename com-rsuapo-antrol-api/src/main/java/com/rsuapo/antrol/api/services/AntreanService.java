@@ -28,6 +28,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -550,6 +551,45 @@ public class AntreanService {
 
     public List<Antrean> findRange(String awal, String akhir) {
         return antreanRepository.findRange(awal, akhir);
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public Antrean checkInByNorm(String norm, Long waktu) throws Exception {
+        List<Antrean> antreans = antreanRepository.findByNorm(norm, new SimpleDateFormat("yyyy-MM-dd").format(new Date()));
+        if (antreans.isEmpty()) {
+            throw new Exception("Antrean dengan norm " + norm + " tidak ditemukan");
+        }
+        
+        Antrean antrean = antreans.get(0);
+
+        if (!Objects.equals(antrean.getStatus(), 1)) {
+            throw new Exception("Antrean dengan norm " + norm + " tidak dapat check in karena status antrean tidak aktif");
+        }
+
+        if (!new SimpleDateFormat("yyyy-MM-dd").format(new Date()).equals(antrean.getTanggalperiksa())) {
+            throw new Exception("Check In hanya dapat dilakukan pada tanggal " + antrean.getTanggalperiksa());
+        }
+
+        if (Boolean.TRUE.equals(antrean.getSudahCheckIn())) {
+            throw new Exception("Antrean dengan norm " + norm + " sudah check in");
+        }
+
+        int lastTaskId = 0;
+        if (!Objects.isNull(antrean.getLastExecutedTaskId())) {
+            lastTaskId = antrean.getLastExecutedTaskId();
+        }
+
+        if (lastTaskId >= 3) {
+            throw new Exception("Check In tidak dapat dilakukan karena task id saat ini adalah " + lastTaskId);
+        }
+
+        antrean.setSudahCheckIn(true);
+        antrean.setWaktuCheckIn(new Date(waktu));
+        antrean.setUpdatedAt(new Date());
+
+        antreanTaskService.put(antrean, 3);
+
+        return antrean;
     }
 
 }
