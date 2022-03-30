@@ -1,0 +1,61 @@
+public static void main(String[] args) {
+        try {
+            AntrolService antrolService = new AntrolService();
+
+//            ResponseListMetadataModel<DokterModel> m = antrolService.getDokters();
+//            System.out.println("code: " + m.getMetadata().getCode());
+//            System.out.println("message: " + m.getMetadata().getMessage());
+//            for (DokterModel dokterModel : m.getData()) {
+//                System.out.println("kode: " + dokterModel.getKodedokter() + " - " + dokterModel.getNamadokter());
+//            }
+//            ResponseListMetadataModel<JadwalDokterModel> jadwal = antrolService.getJadwalDokters("ANA", "2022-03-25");
+//            for (JadwalDokterModel jadwalDokterModel : jadwal.getData()) {
+//                System.out.println(jadwalDokterModel.getJadwal());
+//            }
+            final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+
+            AntreanAdd add = new AntreanAdd();
+            add.setKodebooking("220326000001");
+            add.setJenispasien("NON JKN");
+            add.setNomorkartu("");
+            add.setNik("3502093011860001");
+            add.setNohp("085735302039");
+            add.setKodepoli("ANA");
+            add.setNamapoli("Anak");
+            add.setPasienbaru(1);
+            add.setNorm("000001");
+            add.setTanggalperiksa("2022-03-26");
+            add.setKodedokter("12855");
+            add.setNamadokter("dr. RIFIA INDRAYANTI, Sp.A. M. Kes");
+            add.setJampraktek("08:00-12:00");
+            add.setJeniskunjungan(1);
+            add.setNomorreferensi("");
+            add.setNomorantrean("1");
+            add.setAngkaantrean(1);
+            add.setEstimasidilayani(sdf.parse("2022-03-26 08:30").getTime());
+            add.setSisakuotajkn(5);
+            add.setKuotajkn(5);
+            add.setKuotanonjkn(5);
+            add.setSisakuotanonjkn(5);
+            add.setKeterangan("Peserta harap menunggu");
+//            ResponseMetadataModel antreanAdd = antrolService.antreanAdd(add);
+//            System.out.println("code: " + antreanAdd.getMetadata().getCode());
+//            System.out.println("message: " + antreanAdd.getMetadata().getMessage());
+//            ResponseMetadataModel model = antrolService.updateWaktuAntrean("220326000001", 3, System.currentTimeMillis() / 100);
+//            System.out.println("code: " + model.getMetadata().getCode());
+//            System.out.println("message: " + model.getMetadata().getMessage());
+//
+//            ResponseListMetadataModel<TaskModel> taskList = antrolService.getTaskList("220326000001");
+//            System.out.println("code: " + taskList.getMetadata().getCode());
+//            System.out.println("message: " + taskList.getMetadata().getMessage());
+//            for (TaskModel taskModel : taskList.getData()) {
+//                System.out.println(taskModel.getKodebooking() + ", " + taskModel.getTaskname() + ", " + taskModel.getWaktu());
+//            }
+            ResponseListMetadata<Dashboard> model = antrolService.getDashboardPerBulanServer("03", "2022");
+            for (Dashboard data : model.getData()) {
+                System.out.println("data: " + data.getJumlah_antrean());
+            }
+        } catch (ParseException ex) {
+            Logger.getLogger(AntrolService.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }

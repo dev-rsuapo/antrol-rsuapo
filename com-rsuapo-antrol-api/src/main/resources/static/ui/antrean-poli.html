@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<html>
+    <head>
+        <title>TODO supply a title</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    </head>
+    <body>
+        <div>
+            <ul id="message-list"></ul>
+            <script src="./js/sockjs.min.js"></script>
+            <script src="./js/stomp.min.js"></script>
+            <script>
+                let urlString = window.location.href;
+                let url = new URL(urlString);
+                let channel = url.searchParams.get("channel");
+                
+                let sock = new SockJS("http://localhost:8080/stomp");
+                let client = Stomp.over(sock);
+                client.connect({}, frame => {
+                    client.subscribe("/topic/messages/" + channel, payload => {
+                        let message_list = document.getElementById('message-list');
+                        let message = document.createElement('li');
+
+                        message.appendChild(document.createTextNode(JSON.parse(payload.body).message));
+                        message_list.appendChild(message);
+                    });
+                });
+
+            </script>
+        </div>
+    </body>
+</html>
