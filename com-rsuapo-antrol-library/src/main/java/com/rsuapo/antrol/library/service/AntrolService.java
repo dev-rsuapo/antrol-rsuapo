@@ -10,11 +10,15 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rsuapo.antrol.library.crypto.Decryptor;
 import com.rsuapo.antrol.library.exceptions.BadRequestException;
 import com.rsuapo.antrol.library.models.AntreanAddModel;
+import com.rsuapo.antrol.library.models.AntreanFarmasiAddModel;
+import com.rsuapo.antrol.library.models.AntreanModel;
 import com.rsuapo.antrol.library.models.DashboardModel;
 import com.rsuapo.antrol.library.models.DokterModel;
 import com.rsuapo.antrol.library.models.EncryptedResponseModel;
 import com.rsuapo.antrol.library.models.JadwalDokterModel;
 import com.rsuapo.antrol.library.models.MetadataModel;
+import com.rsuapo.antrol.library.models.PasienFpModel;
+import com.rsuapo.antrol.library.models.PoliFpModel;
 import com.rsuapo.antrol.library.models.PoliModel;
 import com.rsuapo.antrol.library.models.RequestModel;
 import com.rsuapo.antrol.library.models.ResponseListMetadataModel;
@@ -84,6 +88,167 @@ public class AntrolService {
                     String plainText = Decryptor.decrypt(encryptedResponse.getResponse(), consumerId + consumerSecret + req.getTimestamp());
                     List<PoliModel> dokters = Arrays.asList(objectMapper.readValue(plainText, PoliModel[].class));
                     ResponseListMetadataModel<PoliModel> responseListMetadata = new ResponseListMetadataModel<>(encryptedResponse.getMetadata(), dokters);
+                    return responseListMetadata;
+                }
+
+                return new ResponseListMetadataModel<>(encryptedResponse.getMetadata());
+            }
+
+            return new ResponseListMetadataModel<>(new MetadataModel(response.code(), response.message()));
+
+        } catch (IOException ex) {
+            Logger.getLogger(AntrolService.class.getName()).log(Level.SEVERE, null, ex);
+            return new ResponseListMetadataModel<>(new MetadataModel(500, ex.getMessage()));
+        }
+    }
+
+    public ResponseListMetadataModel<AntreanModel> getAntreanPerTanggal(String tanggal) {
+        try {
+            RequestModel req = createRequest(baseUrl + "/antrean/pendaftaran/tanggal/" + tanggal);
+            Response response = req.getResponse();
+            if (response.isSuccessful()) {
+                ObjectMapper objectMapper = new ObjectMapper();
+                String json = response.body().string();
+                EncryptedResponseModel encryptedResponse = objectMapper.readValue(json, EncryptedResponseModel.class);
+                if (1 == encryptedResponse.getMetadata().getCode()) {
+                    String plainText = Decryptor.decrypt(encryptedResponse.getResponse(), consumerId + consumerSecret + req.getTimestamp());
+                    List<AntreanModel> dokters = Arrays.asList(objectMapper.readValue(plainText, AntreanModel[].class));
+                    ResponseListMetadataModel<AntreanModel> responseListMetadata = new ResponseListMetadataModel<>(encryptedResponse.getMetadata(), dokters);
+                    return responseListMetadata;
+                }
+
+                return new ResponseListMetadataModel<>(encryptedResponse.getMetadata());
+            }
+
+            return new ResponseListMetadataModel<>(new MetadataModel(response.code(), response.message()));
+
+        } catch (IOException ex) {
+            Logger.getLogger(AntrolService.class.getName()).log(Level.SEVERE, null, ex);
+            return new ResponseListMetadataModel<>(new MetadataModel(500, ex.getMessage()));
+        }
+    }
+
+    public ResponseListMetadataModel<AntreanModel> getAntreanPerKodeBooking(String kodeBooking) {
+        try {
+            RequestModel req = createRequest(baseUrl + "/antrean/pendaftaran/kodebooking/" + kodeBooking);
+            Response response = req.getResponse();
+            if (response.isSuccessful()) {
+                ObjectMapper objectMapper = new ObjectMapper();
+                String json = response.body().string();
+                EncryptedResponseModel encryptedResponse = objectMapper.readValue(json, EncryptedResponseModel.class);
+                if (1 == encryptedResponse.getMetadata().getCode()) {
+                    String plainText = Decryptor.decrypt(encryptedResponse.getResponse(), consumerId + consumerSecret + req.getTimestamp());
+                    List<AntreanModel> dokters = Arrays.asList(objectMapper.readValue(plainText, AntreanModel[].class));
+                    ResponseListMetadataModel<AntreanModel> responseListMetadata = new ResponseListMetadataModel<>(encryptedResponse.getMetadata(), dokters);
+                    return responseListMetadata;
+                }
+
+                return new ResponseListMetadataModel<>(encryptedResponse.getMetadata());
+            }
+
+            return new ResponseListMetadataModel<>(new MetadataModel(response.code(), response.message()));
+
+        } catch (IOException ex) {
+            Logger.getLogger(AntrolService.class.getName()).log(Level.SEVERE, null, ex);
+            return new ResponseListMetadataModel<>(new MetadataModel(500, ex.getMessage()));
+        }
+    }
+
+    public ResponseListMetadataModel<AntreanModel> getAntreanBelumDilayani() {
+        try {
+            RequestModel req = createRequest(baseUrl + "/antrean/pendaftaran/aktif");
+            Response response = req.getResponse();
+            if (response.isSuccessful()) {
+                ObjectMapper objectMapper = new ObjectMapper();
+                String json = response.body().string();
+                EncryptedResponseModel encryptedResponse = objectMapper.readValue(json, EncryptedResponseModel.class);
+                if (1 == encryptedResponse.getMetadata().getCode()) {
+                    String plainText = Decryptor.decrypt(encryptedResponse.getResponse(), consumerId + consumerSecret + req.getTimestamp());
+                    List<AntreanModel> dokters = Arrays.asList(objectMapper.readValue(plainText, AntreanModel[].class));
+                    ResponseListMetadataModel<AntreanModel> responseListMetadata = new ResponseListMetadataModel<>(encryptedResponse.getMetadata(), dokters);
+                    return responseListMetadata;
+                }
+
+                return new ResponseListMetadataModel<>(encryptedResponse.getMetadata());
+            }
+
+            return new ResponseListMetadataModel<>(new MetadataModel(response.code(), response.message()));
+
+        } catch (IOException ex) {
+            Logger.getLogger(AntrolService.class.getName()).log(Level.SEVERE, null, ex);
+            return new ResponseListMetadataModel<>(new MetadataModel(500, ex.getMessage()));
+        }
+    }
+
+    public ResponseListMetadataModel<AntreanModel> getAntreanBelumDilayani(
+            String kodePoli,
+            String kodeDokter,
+            String hari,
+            String jamPraktek
+    ) {
+        try {
+            RequestModel req = createRequest(baseUrl + "/antrean/pendaftaran/kodepoli/" + kodePoli + "/kodedokter/" + kodeDokter + "/hari/" + hari + "/jampraktek/" + jamPraktek);
+            Response response = req.getResponse();
+            if (response.isSuccessful()) {
+                ObjectMapper objectMapper = new ObjectMapper();
+                String json = response.body().string();
+                EncryptedResponseModel encryptedResponse = objectMapper.readValue(json, EncryptedResponseModel.class);
+                if (1 == encryptedResponse.getMetadata().getCode()) {
+                    String plainText = Decryptor.decrypt(encryptedResponse.getResponse(), consumerId + consumerSecret + req.getTimestamp());
+                    List<AntreanModel> dokters = Arrays.asList(objectMapper.readValue(plainText, AntreanModel[].class));
+                    ResponseListMetadataModel<AntreanModel> responseListMetadata = new ResponseListMetadataModel<>(encryptedResponse.getMetadata(), dokters);
+                    return responseListMetadata;
+                }
+
+                return new ResponseListMetadataModel<>(encryptedResponse.getMetadata());
+            }
+
+            return new ResponseListMetadataModel<>(new MetadataModel(response.code(), response.message()));
+
+        } catch (IOException ex) {
+            Logger.getLogger(AntrolService.class.getName()).log(Level.SEVERE, null, ex);
+            return new ResponseListMetadataModel<>(new MetadataModel(500, ex.getMessage()));
+        }
+    }
+
+    public ResponseMetadataModel<PasienFpModel> getPasienFp(String identitas, String nomorIdentitas) {
+        try {
+            RequestModel req = createRequest(baseUrl + "/ref/pasien/fp/identitas/" + identitas + "/noidentitas/" + nomorIdentitas);
+            Response response = req.getResponse();
+            if (response.isSuccessful()) {
+                ObjectMapper objectMapper = new ObjectMapper();
+                String json = response.body().string();
+                EncryptedResponseModel encryptedResponse = objectMapper.readValue(json, EncryptedResponseModel.class);
+                if (1 == encryptedResponse.getMetadata().getCode()) {
+                    String plainText = Decryptor.decrypt(encryptedResponse.getResponse(), consumerId + consumerSecret + req.getTimestamp());
+                    PasienFpModel pasien = objectMapper.readValue(plainText, PasienFpModel.class);
+                    ResponseMetadataModel<PasienFpModel> responseMetadataModel = new ResponseMetadataModel<>(encryptedResponse.getMetadata(), pasien);
+                    return responseMetadataModel;
+                }
+
+                return new ResponseMetadataModel<>(encryptedResponse.getMetadata());
+            }
+
+            return new ResponseMetadataModel<>(new MetadataModel(response.code(), response.message()));
+
+        } catch (IOException ex) {
+            Logger.getLogger(AntrolService.class.getName()).log(Level.SEVERE, null, ex);
+            return new ResponseMetadataModel<>(new MetadataModel(500, ex.getMessage()));
+        }
+    }
+
+    public ResponseListMetadataModel<PoliFpModel> getPoliFps() {
+        try {
+            RequestModel req = createRequest(baseUrl + "/ref/poli/fp");
+            Response response = req.getResponse();
+            if (response.isSuccessful()) {
+                ObjectMapper objectMapper = new ObjectMapper();
+                String json = response.body().string();
+                EncryptedResponseModel encryptedResponse = objectMapper.readValue(json, EncryptedResponseModel.class);
+                if (1 == encryptedResponse.getMetadata().getCode()) {
+                    String plainText = Decryptor.decrypt(encryptedResponse.getResponse(), consumerId + consumerSecret + req.getTimestamp());
+                    List<PoliFpModel> dokters = Arrays.asList(objectMapper.readValue(plainText, PoliFpModel[].class));
+                    ResponseListMetadataModel<PoliFpModel> responseListMetadata = new ResponseListMetadataModel<>(encryptedResponse.getMetadata(), dokters);
                     return responseListMetadata;
                 }
 
@@ -189,7 +354,28 @@ public class AntrolService {
         }
     }
 
-    public ResponseMetadataModel updateWaktuAntrean(String kodeBooking, int taskId, long waktu) {
+    public ResponseMetadataModel antreanFarmasiAdd(AntreanFarmasiAddModel a) {
+        try {
+            String payload = new ObjectMapper().writeValueAsString(a);
+            System.out.println("payload antreanAdd: " + payload);
+            RequestModel req = createRequest(baseUrl + "/antrean/farmasi/add", payload);
+            Response response = req.getResponse();
+            if (response.isSuccessful()) {
+                ObjectMapper objectMapper = new ObjectMapper();
+                String json = response.body().string();
+                ResponseMetadataModel responseMetadata = objectMapper.readValue(json, ResponseMetadataModel.class);
+                return responseMetadata;
+            }
+
+            return new ResponseMetadataModel(new MetadataModel(response.code(), response.message()));
+
+        } catch (IOException ex) {
+            Logger.getLogger(AntrolService.class.getName()).log(Level.SEVERE, null, ex);
+            return new ResponseMetadataModel(new MetadataModel(500, ex.getMessage()));
+        }
+    }
+
+    public ResponseMetadataModel updateWaktuAntrean(String kodeBooking, int taskId, long waktu, String jenisResep) {
         try {
 
             if (taskId < 1 && taskId > 7 && taskId != 99) {
@@ -200,6 +386,7 @@ public class AntrolService {
             map.put("kodebooking", kodeBooking);
             map.put("taskid", taskId);
             map.put("waktu", waktu);
+            map.put("jenisresep", jenisResep);
             String payload = new ObjectMapper().writeValueAsString(map);
             System.out.println("payload updateWaktuAntrean: " + payload);
             RequestModel req = createRequest(baseUrl + "/antrean/updatewaktu", payload);
@@ -220,6 +407,10 @@ public class AntrolService {
             Logger.getLogger(AntrolService.class.getName()).log(Level.SEVERE, null, ex);
             return new ResponseMetadataModel(new MetadataModel(ex.getCode(), ex.getMessage()));
         }
+    }
+
+    public ResponseMetadataModel updateWaktuAntrean(String kodeBooking, int taskId, long waktu) {
+        return updateWaktuAntrean(kodeBooking, taskId, waktu, "Tidak ada");
     }
 
     public ResponseMetadataModel antreanBatal(String kodeBooking, String keterangan) {
@@ -437,5 +628,5 @@ public class AntrolService {
     }
 
     private static final Logger LOG = Logger.getLogger(AntrolService.class.getName());
-    
+
 }

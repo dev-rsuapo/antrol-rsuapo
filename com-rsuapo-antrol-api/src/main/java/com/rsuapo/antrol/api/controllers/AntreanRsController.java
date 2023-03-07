@@ -195,7 +195,7 @@ public class AntreanRsController {
             antrean.setRefDeviceDeskripsi("Aplikasi JKN Mobile");
 
             Antrean created = antreanService.create(antrean, pasien);
-
+            
             Map<String, Object> map = new HashMap<>();
             map.put("nomorantrean", created.getNomorantrean());
             map.put("angkaantrean", created.getAngkaantrean());

@@ -5,7 +5,6 @@
  */
 package com.rsuapo.antrol.api.respositories;
 
-import com.rsuapo.antrol.api.entities.Antrean;
 import com.rsuapo.antrol.api.entities.AntreanTask;
 import java.util.List;
 import java.util.Optional;
