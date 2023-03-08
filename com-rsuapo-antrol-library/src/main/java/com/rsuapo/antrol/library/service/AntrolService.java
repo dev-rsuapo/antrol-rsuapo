@@ -386,7 +386,10 @@ public class AntrolService {
             map.put("kodebooking", kodeBooking);
             map.put("taskid", taskId);
             map.put("waktu", waktu);
-            map.put("jenisresep", jenisResep);
+            if (taskId == 5) {
+                map.put("jenisresep", jenisResep);
+            }
+            
             String payload = new ObjectMapper().writeValueAsString(map);
             System.out.println("payload updateWaktuAntrean: " + payload);
             RequestModel req = createRequest(baseUrl + "/antrean/updatewaktu", payload);
@@ -410,7 +413,7 @@ public class AntrolService {
     }
 
     public ResponseMetadataModel updateWaktuAntrean(String kodeBooking, int taskId, long waktu) {
-        return updateWaktuAntrean(kodeBooking, taskId, waktu, "Tidak ada");
+        return updateWaktuAntrean(kodeBooking, taskId, waktu, null);
     }
 
     public ResponseMetadataModel antreanBatal(String kodeBooking, String keterangan) {

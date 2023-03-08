@@ -42,7 +42,7 @@ public class DokterService {
                     dokter.setKodedokter(dokterModel.getKodedokter());
                     dokter.setNamadokter(dokterModel.getNamadokter());
                     dokter.setDisplayChannel("200");
-                    dokter.setDisplayRuang("1");
+                    dokter.setDisplayRuang((createdCount + 10) + "");
                     dokter.setCreatedAt(new Date());
                     dokter.setUpdatedAt(new Date());
                     dokterRepository.save(dokter);

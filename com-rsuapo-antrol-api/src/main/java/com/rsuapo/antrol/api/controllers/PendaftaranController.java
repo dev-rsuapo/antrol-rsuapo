@@ -79,7 +79,7 @@ public class PendaftaranController {
                 antrean.setWaktuTask2(new Date());
             }
 
-            antreanService.panggilAntrean(antrean, "200", "5", 1);
+            antreanService.panggilAntrean(antrean, "200", "Pendaftaran", 1, 1);
 
             Map<String, Object> map = new HashMap<>();
             map.put("kodebooking", antrean.getKodebooking());

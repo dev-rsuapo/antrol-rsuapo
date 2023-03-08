@@ -35,6 +35,7 @@ public class AntreanMessage implements Serializable {
     private String unitId;
     private String unitNama;
     private Integer nomorAntrean;
+    private Integer nomorRuang;
     private String message;
     
 }

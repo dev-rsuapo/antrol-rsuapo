@@ -28,7 +28,6 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -313,11 +312,13 @@ public class AntreanService {
         }
 
         String displayRuang = "1";
+        String namaDokter = "";
         if (dokter != null && dokter.getDisplayRuang() != null) {
             displayRuang = dokter.getDisplayRuang();
+            namaDokter = dokter.getNamadokter();
         }
 
-        panggilAntrean(antrean, displayChannel, displayRuang, 2);
+        panggilAntrean(antrean, displayChannel, namaDokter, Integer.parseInt(displayRuang), 2);
 
         return antrean;
     }
@@ -461,12 +462,17 @@ public class AntreanService {
         antrean.setUpdatedAt(new Date());
         antreanTaskService.put(antrean, 7);
 
-        panggilAntrean(antrean, "200", "25", 3);
+        panggilAntrean(antrean, "200", "Farmasi", 2, 3);
 
         return antrean;
     }
 
-    public void panggilAntrean(Antrean antrean, String displayChannel, String displayRuang, Integer type) {
+    public void panggilAntrean(
+            Antrean antrean, 
+            String displayChannel, 
+            String displayRuang, 
+            int nomorRuang,
+            int type) {
         AntreanMessage message = new AntreanMessage();
         message.setDisplayChannel(displayChannel);
         message.setDisplayRuang(displayRuang);
@@ -474,33 +480,34 @@ public class AntreanService {
         message.setDokterNama(antrean.getNamadokter());
         message.setUnitId(antrean.getKodepoli());
         message.setUnitNama(antrean.getNamapoli());
-        if (null != type) {
-            switch (type) {
-                case 1:
-                    message.setNomorAntrean(antrean.getAntreanPendaftaranNomor());
-                    if (!Objects.equals(antrean.getAntreanPendaftaranSudahDipanggil(), true)) {
-                        antrean.setAntreanPendaftaranSudahDipanggil(true);
-                        antrean.setAntreanPendaftaranWaktuDipanggil(new Date());
-                    }
-                    break;
-                case 2:
-                    message.setNomorAntrean(antrean.getAngkaantrean());
-                    if (!Objects.equals(antrean.getPoliSudahDipanggil(), true)) {
-                        antrean.setPoliSudahDipanggil(true);
-                        antrean.setPoliWaktuDipanggil(new Date());
-                    }
-                    break;
-                case 3:
-                    message.setNomorAntrean(antrean.getAntreanFarmasiNomor());
-                    if (!Objects.equals(antrean.getAntreanFarmasiSudahDipanggil(), true)) {
-                        antrean.setAntreanFarmasiSudahDipanggil(true);
-                        antrean.setAntreanFarmasiWaktuDipanggil(new Date());
-                    }
-                    break;
-                default:
-                    break;
-            }
+        message.setNomorAntrean(antrean.getAngkaantrean());
+        message.setNomorRuang(nomorRuang);
+        switch (type) {
+            case 1:
+                message.setNomorAntrean(antrean.getAntreanPendaftaranNomor());
+                if (!Objects.equals(antrean.getAntreanPendaftaranSudahDipanggil(), true)) {
+                    antrean.setAntreanPendaftaranSudahDipanggil(true);
+                    antrean.setAntreanPendaftaranWaktuDipanggil(new Date());
+                }
+                break;
+            case 2:
+                message.setNomorAntrean(antrean.getAngkaantrean());
+                if (!Objects.equals(antrean.getPoliSudahDipanggil(), true)) {
+                    antrean.setPoliSudahDipanggil(true);
+                    antrean.setPoliWaktuDipanggil(new Date());
+                }
+                break;
+            case 3:
+                message.setNomorAntrean(antrean.getAntreanFarmasiNomor());
+                if (!Objects.equals(antrean.getAntreanFarmasiSudahDipanggil(), true)) {
+                    antrean.setAntreanFarmasiSudahDipanggil(true);
+                    antrean.setAntreanFarmasiWaktuDipanggil(new Date());
+                }
+                break;
+            default:
+                break;
         }
+        
         message.setType(type);
         message.setMessage("Channel: " + message.getDisplayChannel() + ", Ruang: " + message.getDisplayRuang() + ", No. Antrean: " + message.getNomorAntrean());
         panggilAntrean(message);
@@ -559,7 +566,7 @@ public class AntreanService {
         if (antreans.isEmpty()) {
             throw new Exception("Antrean dengan norm " + norm + " tidak ditemukan");
         }
-        
+
         Antrean antrean = antreans.get(0);
 
         if (!Objects.equals(antrean.getStatus(), 1)) {

@@ -13,24 +13,179 @@ and open the template in the editor.
     <body>
         <div>
             <ul id="message-list"></ul>
+
+            <link href="./main.css" rel="stylesheet" type="text/css"/>
+
             <script src="./js/sockjs.min.js"></script>
             <script src="./js/stomp.min.js"></script>
+
+            <script src="./js/anime.js"></script>
             <script>
                 let urlString = window.location.href;
                 let url = new URL(urlString);
                 let channel = url.searchParams.get("channel");
-                
+
+                var dir = "audio/";
+                var ext = ".mp3";
+
+                var audio = new Audio();
+
                 let sock = new SockJS("http://localhost:8080/stomp");
                 let client = Stomp.over(sock);
                 client.connect({}, frame => {
                     client.subscribe("/topic/messages/" + channel, payload => {
-                        let message_list = document.getElementById('message-list');
-                        let message = document.createElement('li');
+                        const data = JSON.parse(payload.body);
+                        console.log(data);
 
-                        message.appendChild(document.createTextNode(JSON.parse(payload.body).message));
-                        message_list.appendChild(message);
+                        let message_list = document.getElementById('message-list');
+
+                        let elementId = "li_" + data.nomorRuang.toString();
+                        let message = document.getElementById(elementId);
+
+                        if (typeof message !== 'undefined' && message !== null) {
+                            let o = document.getElementById("h3_nomor_" + data.nomorRuang);
+                            o.innerHTML = data.nomorAntrean.toString();
+                        } else {
+                            message = document.createElement('li');
+                            message.setAttribute("id", "li_" + data.nomorRuang.toString());
+                            let header = document.createElement("h1");
+                            header.appendChild(document.createTextNode(data.displayRuang));
+                            message.appendChild(header);
+
+                            let nomorRuang = document.createElement("h2");
+                            nomorRuang.appendChild(document.createTextNode("Counter " + data.nomorRuang));
+                            message.appendChild(nomorRuang);
+
+                            let nomorAntrean = document.createElement("h3");
+                            nomorAntrean.setAttribute("id", "h3_nomor_" + data.nomorRuang);
+                            nomorAntrean.appendChild(document.createTextNode(data.nomorAntrean));
+                            message.appendChild(nomorAntrean);
+
+                            message_list.appendChild(message);
+                        }
+
+                        doPlay(data);
                     });
                 });
+
+                function doPlay(obj) {
+                    var pls = [];
+                    pls[0] = "nomorurut";
+                    var nomor = getNomor(obj.nomorAntrean) + '';
+                    var nomors = nomor.split('-');
+
+                    var index = 1;
+                    for (var i = 0, max = nomors.length; i < max; i++) {
+                        pls[index] = nomors[i];
+                        index++;
+                    }
+
+                    pls[100] = "silahkan_ke_counter";
+                    pls[101] = getNomor(obj.nomorRuang);
+                    playList(pls);
+                }
+
+                function getNomor(num) {
+                    var strNum = num + '';
+                    if (strNum.length === 1) {
+                        if (num === 1) {
+                            return "satu";
+                        } else if (num === 2) {
+                            return "dua";
+                        } else if (num === 3) {
+                            return "tiga";
+                        } else if (num === 4) {
+                            return "empat";
+                        } else if (num === 5) {
+                            return "lima";
+                        } else if (num === 6) {
+                            return "enam";
+                        } else if (num === 7) {
+                            return "tujuh";
+                        } else if (num === 8) {
+                            return "delapan";
+                        } else if (num === 9) {
+                            return "sembilan";
+                        }
+                    } else if (strNum.length === 2) {
+                        if (num === 10) {
+                            return "sepuluh";
+                        } else if (num === 11) {
+                            return "sebelas";
+                        } else if (num > 11 && num < 20) {
+                            return getNomor(parseInt(strNum.charAt(1))) + '-belas';
+                        } else if (num === 20
+                                || num === 30
+                                || num === 40
+                                || num === 50
+                                || num === 60
+                                || num === 70
+                                || num === 80
+                                || num === 90) {
+                            return getNomor(parseInt(strNum.charAt(0))) + '-puluh';
+                        } else {
+                            return getNomor(parseInt(strNum.charAt(0))) + '-puluh-' + getNomor(parseInt(strNum.charAt(1)));
+                        }
+                    } else if (strNum.length === 3) {
+                        if (num === 100) {
+                            return "seratus";
+                        } else if (num === 200
+                                || num === 300
+                                || num === 400
+                                || num === 500
+                                || num === 600
+                                || num === 700
+                                || num === 800
+                                || num === 900) {
+                            return getNomor(parseInt(strNum.charAt(0))) + '-ratus';
+                        } else if (strNum.charAt(0) === '1') {
+                            var charAt12 = strNum.charAt(1) + '' + strNum.charAt(2);
+                            var intNum12 = parseInt(charAt12);
+                            return 'seratus-' + getNomor(intNum12);
+                        } else {
+                            var charAt12 = strNum.charAt(1) + '' + strNum.charAt(2);
+                            var intNum12 = parseInt(charAt12);
+                            return getNomor(parseInt(strNum.charAt(0))) + '-ratus-' + getNomor(intNum12);
+                        }
+                    }
+                }
+
+                function isPlaying(audio) {
+                    return  !audio.paused
+                            && !audio.ended;
+                }
+
+                var temp = [];
+
+                function playList(playlist) {
+                    anime({
+                        targets: '.antrian-item',
+                        translateX: 250,
+                        rotate: '1turn'
+                    });
+
+                    for (var item in playlist) {
+                        temp.push(playlist[item]);
+                    }
+
+                    audio.addEventListener("ended", function () {
+                        if (temp.length > 0) {
+                            if (!isPlaying(audio)) {
+                                audio.src = dir + temp[0] + ext;
+                                audio.loop = false;
+                                audio.play();
+                                temp.shift();
+                            }
+                        }
+                    });
+
+                    if (!isPlaying(audio)) {
+                        audio.src = dir + temp[0] + ext;
+                        audio.loop = false;
+                        audio.play();
+                        temp.shift();
+                    }
+                }
 
             </script>
         </div>

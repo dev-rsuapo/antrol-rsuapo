@@ -6,6 +6,7 @@
 package com.rsuapo.antrol.api.controllers;
 
 import com.rsuapo.antrol.api.entities.Antrean;
+import com.rsuapo.antrol.api.entities.Dokter;
 import com.rsuapo.antrol.api.entities.JadwalDokter;
 import com.rsuapo.antrol.api.entities.Pasien;
 import com.rsuapo.antrol.api.exceptions.BadRequestException;
@@ -17,6 +18,8 @@ import com.rsuapo.antrol.api.services.PengaturanNomorService;
 import com.rsuapo.antrol.api.models.AntreanBatalModel;
 import com.rsuapo.antrol.api.models.AntreanModel;
 import com.rsuapo.antrol.api.models.ResponseModel;
+import com.rsuapo.antrol.api.services.DokterService;
+import com.rsuapo.antrol.api.services.PoliService;
 import com.rsuapo.antrol.library.models.MetadataModel;
 import com.rsuapo.antrol.library.models.ResponseMetadataModel;
 import java.text.SimpleDateFormat;
@@ -44,6 +47,9 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api")
 public class AntreanController {
+
+    @Autowired
+    private DokterService dokterService;
 
     @Autowired
     private AntreanService antreanService;
@@ -268,31 +274,36 @@ public class AntreanController {
     public ResponseEntity panggil(
             @PathVariable("kodebooking") String kodebooking,
             @PathVariable("channel") String channel,
-            @PathVariable("ruang") String ruang,
             @PathVariable("type") Integer type) {
         Antrean antrean = antreanService.findByKodebooking(kodebooking);
         if (antrean == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(createErrorMessage(404, "Kode booking tidak ditemukan"));
         }
 
-        if (null != type) switch (type) {
-            case 1:
-                if (antrean.getAntreanPendaftaranNomor() == null) {
-                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(createErrorMessage(400, "Nomor antrean pendaftaran kosong"));
-                }   break;
-            case 2:
-                if (antrean.getAngkaantrean() == null) {
-                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(createErrorMessage(400, "Nomor antrean poli kosong"));
-                }   break;
-            case 3:
-                if (antrean.getAntreanFarmasiNomor() == null) {
-                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(createErrorMessage(400, "Nomor antrean farmasi kosong"));
-                }   break;
-            default:
-                break;
+        if (null != type) {
+            switch (type) {
+                case 1:
+                    if (antrean.getAntreanPendaftaranNomor() == null) {
+                        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(createErrorMessage(400, "Nomor antrean pendaftaran kosong"));
+                    }
+                    break;
+                case 2:
+                    if (antrean.getAngkaantrean() == null) {
+                        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(createErrorMessage(400, "Nomor antrean poli kosong"));
+                    }
+                    break;
+                case 3:
+                    if (antrean.getAntreanFarmasiNomor() == null) {
+                        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(createErrorMessage(400, "Nomor antrean farmasi kosong"));
+                    }
+                    break;
+                default:
+                    break;
+            }
         }
 
-        antreanService.panggilAntrean(antrean, channel, ruang, type);
+        Dokter dokter = dokterService.findByKodedokter(antrean.getKodedokter());
+        antreanService.panggilAntrean(antrean, channel, dokter.getNamadokter(), Integer.parseInt(dokter.getDisplayRuang()), type);
         return ResponseEntity.ok(createSuccessMessage("Ok"));
     }
 
