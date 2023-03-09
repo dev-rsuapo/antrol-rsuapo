@@ -15,12 +15,13 @@ ul#message-list {
 
 ul#message-list li {
     float: left;
-    width: 300px;
+    width: 400px;
     height: 240px;
     background-color: #fff;
     border-radius: 2px;
     font-size: 16px;
     text-align: center;
+    margin: 16px;
 }
 
 ul#message-list li h1 {
@@ -31,10 +32,12 @@ ul#message-list li h1 {
 
 ul#message-list li h2 {
     font-weight: normal;
-    margin: 0;
-    padding-top: 8px;
-    padding-bottom: 8px;
+    margin: 8px 0;
     font-size: 24px;
+    display: block;
+    padding: 8px 16px;
+    background-color: #ff9900;
+    color: #fff;
 }
 
 ul#message-list li h3 {

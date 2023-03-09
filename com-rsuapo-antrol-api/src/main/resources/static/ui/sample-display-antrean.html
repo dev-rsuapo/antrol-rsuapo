@@ -6,7 +6,7 @@ and open the template in the editor.
 -->
 <html>
     <head>
-        <title>TODO supply a title</title>
+        <title>Display Antrean</title>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
     </head>
@@ -81,7 +81,16 @@ and open the template in the editor.
                     }
 
                     pls[100] = "silahkan_ke_counter";
-                    pls[101] = getNomor(obj.nomorRuang);
+
+                    nomor = getNomor(obj.nomorRuang);
+                    nomors = nomor.split('-');
+
+                    index = 101;
+                    for (var i = 0, max = nomors.length; i < max; i++) {
+                        pls[index] = nomors[i];
+                        index++;
+                    }
+
                     playList(pls);
                 }
 

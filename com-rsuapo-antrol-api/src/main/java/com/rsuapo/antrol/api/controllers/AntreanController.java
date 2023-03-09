@@ -19,7 +19,6 @@ import com.rsuapo.antrol.api.models.AntreanBatalModel;
 import com.rsuapo.antrol.api.models.AntreanModel;
 import com.rsuapo.antrol.api.models.ResponseModel;
 import com.rsuapo.antrol.api.services.DokterService;
-import com.rsuapo.antrol.api.services.PoliService;
 import com.rsuapo.antrol.library.models.MetadataModel;
 import com.rsuapo.antrol.library.models.ResponseMetadataModel;
 import java.text.SimpleDateFormat;
@@ -270,7 +269,7 @@ public class AntreanController {
         }
     }
 
-    @PostMapping("/antreans/panggil/{kodebooking}/{channel}/{ruang}/{type}")
+    @PostMapping("/antreans/panggil/{kodebooking}/{channel}/{type}")
     public ResponseEntity panggil(
             @PathVariable("kodebooking") String kodebooking,
             @PathVariable("channel") String channel,
@@ -286,24 +285,26 @@ public class AntreanController {
                     if (antrean.getAntreanPendaftaranNomor() == null) {
                         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(createErrorMessage(400, "Nomor antrean pendaftaran kosong"));
                     }
+                    antreanService.panggilAntrean(antrean, channel, "Pendaftaran", 1, type);
                     break;
                 case 2:
                     if (antrean.getAngkaantrean() == null) {
                         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(createErrorMessage(400, "Nomor antrean poli kosong"));
                     }
+                    Dokter dokter = dokterService.findByKodedokter(antrean.getKodedokter());
+                    antreanService.panggilAntrean(antrean, channel, dokter.getNamadokter(), Integer.parseInt(dokter.getDisplayRuang()), type);
                     break;
                 case 3:
                     if (antrean.getAntreanFarmasiNomor() == null) {
                         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(createErrorMessage(400, "Nomor antrean farmasi kosong"));
                     }
+                    antreanService.panggilAntrean(antrean, channel, "Farmasi", 2, type);
                     break;
                 default:
                     break;
             }
         }
 
-        Dokter dokter = dokterService.findByKodedokter(antrean.getKodedokter());
-        antreanService.panggilAntrean(antrean, channel, dokter.getNamadokter(), Integer.parseInt(dokter.getDisplayRuang()), type);
         return ResponseEntity.ok(createSuccessMessage("Ok"));
     }
 
